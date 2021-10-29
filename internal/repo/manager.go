@@ -40,7 +40,7 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 
 	creq := &createReq{
 		Name:        name,
-		Description: "",
+		Description: desc,
 		Private:     true,
 	}
 
@@ -49,7 +49,10 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 		return err
 	}
 
-	url := fmt.Sprintf("https://api.github.com/%s/repos", r.username)
+	url := "https://api.github.com/user/repos"
+
+	fmt.Println(url)
+	fmt.Println(r.token)
 
 	client := &http.Client{}
 
@@ -61,7 +64,7 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error creating repo: %s", err)
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -75,7 +78,7 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 	}
 
 	if resp.StatusCode != 201 {
-		return fmt.Errorf("error al cerar el repositorio: revise que el nombre no existe y que la descripción sea válida")
+		return fmt.Errorf("bad response: %d", resp.StatusCode)
 	}
 
 	color.Print("green", "Repositorio creado satisfactoriamente")
@@ -93,7 +96,7 @@ func (r *repoManager) PushChanges(name string, commit string) error {
 	fmt.Println("Haciendo commits de cambios...")
 	err = exec.Command("git", "-C", name, "commit", "-m", commit).Run()
 	if err != nil {
-		return fmt.Errorf("ocurrió un error al hacer commit de los cambios")
+		return fmt.Errorf(fmt.Sprintf("ocurrió un error al hacer commit de los cambios: %s", err))
 	}
 
 	err = exec.Command("git", "-C", name, "push", "-u", "origin", "main").Run()
@@ -120,7 +123,7 @@ func (r *repoManager) initializeRepo(name, desc string) error {
 
 	fmt.Println("Creando readme...")
 	// Create file README.md inside the repo folder
-	err = exec.Command("echo", fmt.Sprintf(`"#%s"`, name), ">>", fmt.Sprintf("./%s/README.md", name)).Run()
+	err = exec.Command("touch", fmt.Sprintf("./%s/README.md", name)).Run()
 	if err != nil {
 		return fmt.Errorf("ocurrió un error al crear el readme")
 	}

@@ -2,7 +2,6 @@ package template
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -40,7 +39,8 @@ func (tm *templateManager) PlaceTemplateInRepo() error {
 	color.Print("white", "Template folder found!")
 
 	// copy template folder content into repo folder
-	err := exec.Command("cp", "-r", "./template/*", tm.path).Run()
+	cmd := fmt.Sprintf("cp -r ./template/* %s", tm.path)
+	err := exec.Command("bash", "-c", cmd).Run()
 	if err != nil {
 		color.Print("red", fmt.Sprintf("Couldn't copy template folder: %s", err.Error()))
 		return err
@@ -89,22 +89,18 @@ func (tm *templateManager) visit(path string, fi os.FileInfo, err error) error {
 		return nil //
 	}
 
-	matched, err := filepath.Match("*.txt", fi.Name())
-
-	if err != nil {
-		return err
-	}
+	matched, _ := filepath.Match("*go*", fi.Name())
 
 	if matched {
-		read, err := ioutil.ReadFile(path)
+		read, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
 		//fmt.Println(string(read))
 
-		newContents := strings.Replace(string(read), "old", tm.username+"/"+tm.name, -1)
+		newContents := strings.Replace(string(read), "usuario/repositorio", tm.username+"/"+tm.name, -1)
 
-		err = ioutil.WriteFile(path, []byte(newContents), 0)
+		err = os.WriteFile(path, []byte(newContents), 0644)
 		if err != nil {
 			return err
 		}

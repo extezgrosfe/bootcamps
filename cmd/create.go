@@ -38,7 +38,7 @@ var createCmd = &cobra.Command{
 
 		fmt.Printf("Wave N°: ")
 		fmt.Scan(&wave)
-		fmt.Printf("\nCantidad de grupos: ")
+		fmt.Printf("Cantidad de grupos: ")
 		fmt.Scan(&ammount)
 
 		fmt.Printf("\n\n")
@@ -70,10 +70,10 @@ var createCmd = &cobra.Command{
 
 		for i := 1; i <= ammount; i++ {
 			repoName := fmt.Sprintf("meli_bootcamp_w%s-%d", wave, i)
-			color.Print("yellow", fmt.Sprintf("Creando repositorio %s", repoName))
+
 			err := repoM.CreateRepo(repoName, "")
 			if err != nil {
-				color.Print("red", "Error al crear el repositorio")
+				color.Print("red", fmt.Sprintf("Error al crear el repositorio: %s", err.Error()))
 				return
 			}
 
@@ -102,9 +102,7 @@ var createCmd = &cobra.Command{
 			fmt.Printf("\n\n")
 		}
 
-		color.Print("green", ":::::::::::::::::::::::::::::")
 		color.Print("green", "Todos los repositorios fueron creados y configurados con éxito")
-		color.Print("green", ":::::::::::::::::::::::::::::")
 	},
 }
 
