@@ -78,4 +78,5 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
+	viper.ReadInConfig()
 }
