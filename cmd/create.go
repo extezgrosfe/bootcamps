@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/extezgrosfe/bootcamps/internal/repo"
@@ -71,6 +72,8 @@ var createCmd = &cobra.Command{
 		for i := 1; i <= ammount; i++ {
 			repoName := fmt.Sprintf("meli_bootcamp_w%s-%d", wave, i)
 
+			color.Print("cyan", fmt.Sprintf("Crear repositorio %s", repoName))
+
 			err := repoM.CreateRepo(repoName, "")
 			if err != nil {
 				color.Print("red", fmt.Sprintf("Error al crear el repositorio: %s", err.Error()))
@@ -79,28 +82,34 @@ var createCmd = &cobra.Command{
 
 			templateM := template.NewTemplateManager(repoName, username)
 
+			color.Print("cyan", "Colocar el template")
+
 			err = templateM.PlaceTemplateInRepo()
 			if err != nil {
-				color.Print("red", "Error al crear el template")
+				color.Print("red", fmt.Sprintf("Error al crear el template: %s", err.Error()))
 				return
 			}
 
 			err = templateM.ReplaceImportsInRepo()
 			if err != nil {
-				color.Print("red", "Error al reemplazar los imports")
+				color.Print("red", fmt.Sprintf("Error al reemplazar los imports: %s", err.Error()))
 				return
 			}
 
 			err = repoM.PushChanges(repoName, "add template")
 			if err != nil {
-				color.Print("red", "Error al hacer el push")
+				color.Print("red", fmt.Sprintf("Error al subir los cambios: %s", err.Error()))
 				return
 			}
+
+			templateM.RemoveRepoFolder()
 
 			color.Print("green", "Repositorio creado y configurado con éxito")
 
 			fmt.Printf("\n\n")
 		}
+
+		_ = os.RemoveAll("./template")
 
 		color.Print("green", "Todos los repositorios fueron creados y configurados con éxito")
 	},

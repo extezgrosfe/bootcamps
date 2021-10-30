@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
-
-	"github.com/extezgrosfe/bootcamps/pkg/color"
 )
 
 type createReq struct {
@@ -36,8 +34,6 @@ func NewRepoManager(token, username string) RepoManager {
 }
 
 func (r *repoManager) CreateRepo(name, desc string) error {
-	color.Print("white", fmt.Sprintf("Creando repo %s...", name))
-
 	creq := &createReq{
 		Name:        name,
 		Description: desc,
@@ -50,9 +46,6 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 	}
 
 	url := "https://api.github.com/user/repos"
-
-	fmt.Println(url)
-	fmt.Println(r.token)
 
 	client := &http.Client{}
 
@@ -81,12 +74,10 @@ func (r *repoManager) CreateRepo(name, desc string) error {
 		return fmt.Errorf("bad response: %d", resp.StatusCode)
 	}
 
-	color.Print("green", "Repositorio creado satisfactoriamente")
 	return r.initializeRepo(name, desc)
 }
 
 func (r *repoManager) PushChanges(name string, commit string) error {
-	color.Print("white", fmt.Sprintf("Subiendo cambios a %s...", name))
 	fmt.Println("Agregando cambios...")
 	err := exec.Command("git", "-C", name, "add", ".").Run()
 	if err != nil {
@@ -99,6 +90,7 @@ func (r *repoManager) PushChanges(name string, commit string) error {
 		return fmt.Errorf(fmt.Sprintf("ocurrió un error al hacer commit de los cambios: %s", err))
 	}
 
+	fmt.Println("Subiendo cambios...")
 	err = exec.Command("git", "-C", name, "push", "-u", "origin", "main").Run()
 	if err != nil {
 		return fmt.Errorf("ocurrió un error al pushear a main")
@@ -118,8 +110,6 @@ func (r *repoManager) initializeRepo(name, desc string) error {
 	if err != nil {
 		return fmt.Errorf("ocurrió un error al clonar el repositorio")
 	}
-
-	fmt.Println("Configurando entorno...")
 
 	fmt.Println("Creando readme...")
 	// Create file README.md inside the repo folder
@@ -160,6 +150,5 @@ func (r *repoManager) initializeRepo(name, desc string) error {
 		return fmt.Errorf("ocurrió un error al pushear a main")
 	}
 
-	color.Print("green", "Repositorio configurado satisfactoriamente")
 	return nil
 }
