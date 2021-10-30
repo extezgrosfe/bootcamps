@@ -40,9 +40,16 @@ func (tm *templateManager) PlaceTemplateInRepo() error {
 	// copy template folder content into repo folder
 	fmt.Println("Copiando template...")
 	cmd := fmt.Sprintf("cp -r ./template/* %s", tm.path)
+	cmdgithub := fmt.Sprintf("cp -r ./template/.github %s", tm.path)
 	err := exec.Command("bash", "-c", cmd).Run()
 	if err != nil {
 		color.Print("red", fmt.Sprintf("Couldn't copy template folder: %s", err.Error()))
+		return err
+	}
+
+	err = exec.Command("bash", "-c", cmdgithub).Run()
+	if err != nil {
+		color.Print("red", fmt.Sprintf("Couldn't copy .github template folder: %s", err.Error()))
 		return err
 	}
 	return nil
